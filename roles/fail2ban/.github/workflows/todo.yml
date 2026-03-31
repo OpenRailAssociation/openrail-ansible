@@ -12,9 +12,9 @@ jobs:
   build:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: "TODO to Issue"
-        uses: "alstr/todo-to-issue-action@v4"
+        uses: "alstr/todo-to-issue-action@4120fdbb02461dd1abf18756a7464b8e45347863" # v4
         id: "todo"
         with:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}

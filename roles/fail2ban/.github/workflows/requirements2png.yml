@@ -15,11 +15,11 @@ jobs:
       contents: write
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           path: ${{ github.repository }}
       - name: create png
-        uses: robertdebock/graphviz-action@1.0.7
+        uses: robertdebock/graphviz-action@3bbf56f921d6724401ba7a22e426eb04e9ec7e42 # 1.0.7
       - name: Commit files
         run: |
           cd ${{ github.repository }}
@@ -28,7 +28,7 @@ jobs:
           git add requirements.dot requirements.png
           git commit -m "Add generated files"
       - name: save to png branch
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@4cc74773234f74829a8c21bc4d69dd4be9cfa599 # master
         with:
           directory: ${{ github.repository }}
           force: true
