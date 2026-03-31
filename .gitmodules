@@ -16,3 +16,6 @@
 [submodule "roles/certbot"]
 	path = roles/certbot
 	url = https://github.com/geerlingguy/ansible-role-certbot.git
+[submodule "roles/fail2ban"]
+	path = roles/fail2ban
+	url = https://github.com/robertdebock/ansible-role-fail2ban
