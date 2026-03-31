@@ -65,3 +65,40 @@
         apply:
           tags: fail2ban
       tags: fail2ban
+
+    - name: Setup certbot
+      ansible.builtin.include_role:
+        name: certbot
+        apply:
+          tags: ["certbot", "webserver"]
+      tags: ["certbot", "webserver"]
+      when: inventory_hostname in groups["webserver"]
+
+    - name: Setup nginx
+      ansible.builtin.include_role:
+        name: nginx
+        apply:
+          tags: ["nginx", "webserver"]
+      tags: ["nginx", "webserver"]
+      when:
+        - inventory_hostname in groups["webserver"]
+        - hostvars[inventory_hostname].nginx_vhosts is defined
+
+    - name: Setup Docker
+      ansible.builtin.include_role:
+        name: docker
+        apply:
+          tags: docker
+      tags: docker
+      when: inventory_hostname in groups["docker"]
+
+    - name: Setup Nextcloud Talk HPB
+      ansible.builtin.include_role:
+        name: nextcloud-talk-hpb
+        apply:
+          tags: nextcloud-talk-hpb
+          # Execute tasks as user by default
+          become: true
+          become_user: "{{ nextcloud_talk_user.user }}"
+      tags: nextcloud-talk-hpb
+      when: inventory_hostname in groups["nextcloud_talk_hpb"]

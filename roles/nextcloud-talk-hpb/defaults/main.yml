@@ -1,0 +1,4 @@
+---
+nextcloud_talk_user:
+  user: nc-talk
+nextcloud_talk_port: 3478

@@ -1,0 +1,22 @@
+---
+- name: Setup user {{ nextcloud_talk_user.user }}
+  ansible.builtin.include_role:
+    name: users
+    apply:
+      become: false
+  vars:
+    username: "{{ nextcloud_talk_user.user }}"
+    password: "{{ nextcloud_talk_user.pass | default('') }}"
+    user_groups: ["docker"]
+
+- name: Copy docker-compose files
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "~/{{ item | replace('.j2', '') }}"
+    mode: "0644"
+  loop:
+    - docker-compose.yml.j2
+
+- name: Start nextcloud-talk-hpb via docker-compose
+  community.docker.docker_compose_v2:
+    project_src: "~/"

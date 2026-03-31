@@ -1,0 +1,18 @@
+services:
+  nc-talk:
+    image: ghcr.io/nextcloud-releases/aio-talk:20260306_081319
+    container_name: nc-talk-hpb
+    restart: unless-stopped
+    init: true
+    ports:
+      - {{ nextcloud_talk_port }}:{{ nextcloud_talk_port }}/tcp
+      - {{ nextcloud_talk_port }}:{{ nextcloud_talk_port }}/udp
+      - 127.0.0.1:8181:8081/tcp
+    environment:
+      - NC_DOMAIN={{ nextcloud_talk_nc_domain }}
+      - TALK_HOST={{ nextcloud_talk_host }}
+      - TURN_SECRET={{ nextcloud_talk_turn_secret }}
+      - SIGNALING_SECRET={{ nextcloud_talk_signaling_secret }}
+      - TZ=Europe/Berlin
+      - TALK_PORT=3478
+      - INTERNAL_SECRET={{ nextcloud_talk_internal_secret }}

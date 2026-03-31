@@ -11,3 +11,107 @@ users:
       31623732656465303634323461643439633531666564396438626135623263313361363864613730
       6135616662363336380a333135366563346661633531646637303865343363333066393532383738
       6530
+
+# UFW
+ufw_rules:
+  - rule: allow
+    to_port: 22
+    protocol: tcp
+    comment: "SSH"
+  - rule: allow
+    to_port: 80
+    comment: "HTTP"
+  - rule: allow
+    to_port: 443
+    comment: "HTTPS"
+  - rule: allow
+    to_port: "{{ nextcloud_talk_port }}"
+    protocol: tcp
+    comment: "STUN TCP"
+  - rule: allow
+    to_port: "{{ nextcloud_talk_port }}"
+    protocol: udp
+    comment: "STUN UDP"
+
+# CERTBOT
+certbot_create_if_missing: true
+certbot_admin_email: techadmin@openrailassociation.org
+certbot_certs:
+  - domains:
+      - "{{ nextcloud_talk_host }}"
+
+# NGINX
+nginx_remove_default_vhost: true
+nginx_extra_http_options: |
+  proxy_max_temp_file_size 0;
+nginx_upstreams:
+  - name: nc-talk-hpb
+    servers:
+      - "127.0.0.1:8181"
+nginx_vhosts:
+  # Nextcloud Talk HPB
+  - listen: "443 http2 ssl"
+    server_name: "{{ nextcloud_talk_host }}"
+    access_log: "/var/log/nginx/nc-talk-hpb-access.log"
+    error_log: "/var/log/nginx/nc-talk-hpb-error.log"
+    filename: "nc-talk-hpb-ssl.conf"
+    extra_parameters: |
+      ssl_certificate /etc/letsencrypt/live/{{ nextcloud_talk_host }}/fullchain.pem;
+      ssl_certificate_key /etc/letsencrypt/live/{{ nextcloud_talk_host }}/privkey.pem;
+      ssl_protocols TLSv1.2 TLSv1.3;
+      ssl_ciphers HIGH:!aNULL:!MD5;
+      location /standalone-signaling/ {
+        proxy_pass http://nc-talk-hpb/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      }
+
+      location /standalone-signaling/spreed {
+          proxy_pass http://nc-talk-hpb/spreed;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      }
+  - listen: "80"
+    server_name: "{{ nextcloud_talk_host }}"
+    return: "301 https://$host$request_uri"
+    filename: "nc-talk-hpb.conf"
+
+# NEXTCLOUD TALK
+nextcloud_talk_user:
+  user: nc-talk
+nextcloud_talk_nc_domain: share.openrailassociation.org
+nextcloud_talk_host: hpb.share.openrailassociation.org
+nextcloud_talk_port: 3478
+nextcloud_talk_turn_secret: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  66363336303262393434313335353930303233393939663439373038396534386134633030323864
+  6264353339346236666438623366356464626239383939380a353835376538336337613838653931
+  61383033623636666261373139623562386536623935373930353562663336643631653333383665
+  6439303539333061610a346334323035333536653439343463356438383830653561323038313734
+  61343164626262633539393363636430636635303534353036626162633230323230623634343331
+  65386133623932376132333638666337373735653132383231623262303664623734353732313231
+  656563346461356563376264383863646465
+nextcloud_talk_signaling_secret: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  34623465393434383937303538386633663432373862653961616530326330643937656337323131
+  6339313733336163393035643465323266636536386630330a376464343561323764303137323834
+  35366564323030626464323266326332343365383262626330343966643633346163663766643039
+  6536376430386362630a356239343139346366303364386433623264623836396238363935643363
+  34626439623133303931623233323531313264356163343065636639646339386632393835326566
+  38396131633564663265613139653533303638373662303864363130393263393337333763363161
+  373666373136613835346161336631303135
+nextcloud_talk_internal_secret: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  31313934373266393836303464666565643236356264343132393532343837343461663036623566
+  6431653061646164303265303563376464373831373761340a613231316665333237316462383630
+  62386137313338663863363337643066353732636237396439646532303530346532393361316365
+  6565396562613133660a613334366163666564646633363532383030643032313031376261326239
+  32346230383930663734303637313730613533643931633237383965353833326235643032343539
+  35393861376433316638633765346265633733303635626439366636643332623434306163336362
+  373936623862626336343765306530646563
