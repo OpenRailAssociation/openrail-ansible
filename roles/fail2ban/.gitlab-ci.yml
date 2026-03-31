@@ -4,7 +4,7 @@ variables:
   DEBIAN_FRONTEND: noninteractive
 
 molecule:
-  image: python:3.13
+  image: python:3.14
   script:
     - apt-get update -qq
     - apt-get -y -qq install yamllint docker.io
@@ -35,7 +35,7 @@ molecule:
         tag: "focal"
 
 galaxy:
-  image: python:3.13
+  image: python:3.14
   script:
     - apt-get update -qq
     - apt-get -y -qq install ansible-core
