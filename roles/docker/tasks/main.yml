@@ -1,0 +1,22 @@
+---
+- name: Ensure Docker and relevant tools are installed
+  apt:
+    name:
+      - docker.io
+      - docker-cli
+      - docker-compose
+      - moreutils
+
+- name: Ensure Docker Compose 2.x is installed on Debian bookworm
+  ansible.builtin.apt:
+    name: docker-compose
+    default_release: trixie # noqa: package-latest
+    state: latest
+  when: ansible_distribution == 'Debian' and ansible_distribution_release == 'bookworm'
+
+- name: Ensure that docker prune cronjob exists"
+  cron:
+    name: "docker prune"
+    minute: "0"
+    hour: "*/6"
+    job: "chronic docker system prune -af --filter until=24h"

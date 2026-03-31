@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2022 Free Software Foundation Europe <https://fsfe.org>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+"""
+Ansible dynamic inventory script to parse a static inventory file (TOML) and output group-based JSON
+for Ansible to consume.
+"""
+
+import argparse
+import json
+import sys
+import tomllib
+from collections import defaultdict
+from pathlib import Path
+
+
+def flatten_toml_keys(data: dict, prefix: str = "") -> dict[str, list[str]]:
+    """Flatten nested TOML dicts caused by unquoted dotted keys back into
+    dotted hostname strings. e.g. {"a": {"b": ["servers"]}} -> {"a.b": ["servers"]}"""
+    result: dict[str, list[str]] = {}
+    for key, value in data.items():
+        full_key = f"{prefix}.{key}" if prefix else key
+        if isinstance(value, dict):
+            result.update(flatten_toml_keys(value, full_key))
+        else:
+            result[full_key] = value
+    return result
+
+
+def find_inventory():
+    """Find first file named 'inventory.toml' recursively in current dir"""
+    paths = list(Path(".").rglob("*inventory.toml"))
+    if len(paths) > 1:
+        print(
+            """
+Found more than one static inventory while recursively scanning current directory.
+Please make sure you only have one file named 'inventory.toml' in the current
+directory.
+
+Exiting...
+            """
+        )
+        sys.exit(1)
+    else:
+        return paths[0]
+
+
+def main():
+    """Main function to parse static inventory and output dynamic inventory JSON"""
+    # Parse the arguments
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--list",
+        help="Ansible inventory of all of the groups",
+        action="store_true",
+        dest="list_inventory",
+    )
+    parser.add_argument(
+        "--host",
+        help="Ansible inventory of a particular host (not implemented, as not needed)",
+        action="store",
+        dest="ansible_host",
+        type=str,
+    )
+    args = parser.parse_args()
+
+    # Find the static inventory file
+    inventory = find_inventory()
+    # Prepare the data structure for Ansible dynamic inventory
+    ansible_groups_hosts = defaultdict(lambda: defaultdict(list))
+    # Add meta.host_vars section
+    ansible_groups_hosts["_meta"] = {"hostvars": {}}
+
+    # Read and parse the static inventory file
+    with open(inventory, "rb") as file:
+        raw_data = tomllib.load(file)
+        # Flatten nested dicts from unquoted dotted keys back into hostnames
+        data: dict[str, list[str]] = flatten_toml_keys(raw_data)
+        for host, groups in data.items():
+            ansible_groups = set()
+            for group in groups:
+                ansible_groups.add(group.strip())
+            # Create dictionary by iterating through the set and adding the hosts
+            for group in ansible_groups:
+                ansible_groups_hosts[group]["hosts"].append(host)
+
+    if args.list_inventory:
+        print(json.dumps(ansible_groups_hosts, indent=2))
+    # The --host option to return variables may return empty dict, but needs to be callable
+    # See https://docs.ansible.com/projects/ansible/latest/dev_guide/developing_inventory.html#inventory-script-conventions
+    else:
+        print("{}")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,24 @@
+---
+# The usual packages we want on every system
+packages_basic:
+  - bash-completion
+  - curl
+  - etckeeper
+  - gnupg
+  - htop
+  - linux-sysctl-defaults # e.g. for enabling ping for normal users
+  - lsof
+  - moreutils
+  - ncdu
+  - ntpsec
+  - python3-systemd # for fail2ban systemd module
+  - rsync
+  - screen
+  - sudo
+  - ufw
+  - vim
+# extra per-host packages that can be given as a variable
+packages_extra: []
+packages_removed_default: []
+packages_removed_extra: []
+packages_editor: vim.basic

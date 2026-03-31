@@ -1,0 +1,67 @@
+---
+- name: Set up machines
+  hosts: servers
+  remote_user: root
+  tasks:
+    - name: Set hostname
+      ansible.builtin.hostname:
+        name: "{{ hostname }}"
+      tags: hostname
+      when: hostname is defined
+
+    - name: Set swapfile
+      ansible.builtin.include_role:
+        name: swapfile
+        apply:
+          tags: swapfile
+      tags: swapfile
+      when: swapfile_size is defined
+
+    - name: Install packages
+      ansible.builtin.include_role:
+        name: packages
+        apply:
+          tags: packages
+      tags: packages
+
+    - name: Setup users
+      ansible.builtin.include_role:
+        name: users
+        apply:
+          tags: users
+      tags: users
+      loop: "{{ users }}"
+      when: users is defined
+      vars:
+        username: "{{ item.user }}"
+        password: "{{ item.pass | default('*') }}"
+        user_groups: "{{ item.groups | default([]) }}"
+
+    - name: Setup UFW
+      ansible.builtin.include_role:
+        name: ufw
+        apply:
+          tags: ufw
+      tags: ufw
+
+    - name: Setup unattended-upgrades
+      ansible.builtin.include_role:
+        name: hifis.toolkit.unattended_upgrades
+        apply:
+          tags: unattended-upgrades
+      tags: unattended-upgrades
+
+    - name: Setup cron jobs
+      ansible.builtin.include_role:
+        name: cron
+        apply:
+          tags: cron
+      tags: cron
+      when: cron_jobs | length > 0
+
+    - name: Setup fail2ban
+      ansible.builtin.include_role:
+        name: fail2ban
+        apply:
+          tags: fail2ban
+      tags: fail2ban

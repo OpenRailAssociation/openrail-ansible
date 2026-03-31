@@ -1,0 +1,82 @@
+---
+- name: Ensure basic and host-specific packages are installed
+  ansible.builtin.apt:
+    name: "{{ packages_basic + packages_extra }}"
+    state: present
+    update_cache: true
+
+- name: Ensure some packages are not installed
+  ansible.builtin.apt:
+    name: "{{ packages_removed_default + packages_removed_extra }}"
+    state: absent
+
+- name: Set default editor
+  ansible.builtin.alternatives:
+    name: editor
+    path: "/usr/bin/{{ packages_editor }}"
+
+- name: Add Debian trixie repositories if on Debian bookworm
+  when: ansible_distribution == 'Debian' and ansible_distribution_release == 'bookworm'
+  block:
+    - name: Add Debian trixie repositories
+      ansible.builtin.apt_repository:
+        repo: "{{ item }}"
+        state: present
+        filename: debian-trixie
+      loop:
+        - "deb http://deb.debian.org/debian trixie main contrib non-free"
+        - "deb http://deb.debian.org/debian trixie-updates main contrib non-free"
+        - "deb http://security.debian.org/debian-security trixie-security main contrib non-free"
+
+    - name: Pin Debian trixie to avoid automatic use
+      copy:
+        dest: /etc/apt/preferences.d/pin-debian-trixie
+        content: |
+          Package: *
+          Pin: release n=trixie
+          Pin-Priority: 1
+
+          Package: *
+          Pin: release n=trixie-updates
+          Pin-Priority: 1
+
+          Package: *
+          Pin: release n=trixie-security
+          Pin-Priority: 1
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Update apt cache
+
+- name: Add Debian forky repositories if on Debian trixie
+  when: ansible_distribution == 'Debian' and ansible_distribution_release == 'trixie'
+  block:
+    - name: Add Debian forky repositories
+      ansible.builtin.apt_repository:
+        repo: "{{ item }}"
+        state: present
+        filename: debian-forky
+      loop:
+        - "deb http://deb.debian.org/debian forky main contrib non-free"
+        - "deb http://deb.debian.org/debian forky-updates main contrib non-free"
+        - "deb http://security.debian.org/debian-security forky-security main contrib non-free"
+
+    - name: Pin Debian forky to avoid automatic use
+      copy:
+        dest: /etc/apt/preferences.d/pin-debian-forky
+        content: |
+          Package: *
+          Pin: release n=forky
+          Pin-Priority: 1
+
+          Package: *
+          Pin: release n=forky-updates
+          Pin-Priority: 1
+
+          Package: *
+          Pin: release n=forky-security
+          Pin-Priority: 1
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Update apt cache

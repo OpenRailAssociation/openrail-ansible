@@ -1,0 +1,45 @@
+---
+# CRON JOBS
+cron_dependencies:
+  - cron
+  - moreutils # chronic
+cron_jobs: []
+
+# UNATTENDED-UPGRADES
+unattended_origins_patterns:
+  # updates
+  - "origin=Debian,codename=${distro_codename},label=Debian"
+  - "origin=Debian,codename=${distro_codename}-updates,label=Debian"
+  # pattern for security releases, starting with bullseye
+  - "origin=Debian,codename=${distro_codename}-security,label=Debian-Security"
+# Reboots
+unattended_automatic_reboot: true
+unattended_automatic_reboot_time: "3:{{ 60 | random(seed=inventory_hostname) }}"
+# Reporting
+unattended_verbose: 1
+unattended_mail: "noreply@openrailassociation.org"
+unattended_mail_only_on_error: true
+# Timing
+unattended_download_upgradeable: 1
+unattended_autoclean_interval: 21
+unattended_systemd_timer_override: true
+unattended_apt_daily_oncalendar: "*-*-* 3:00"
+unattended_apt_daily_randomizeddelaysec: "30m"
+unattended_apt_daily_upgrade_oncalendar: "*-*-* 6:00"
+unattended_apt_daily_upgrade_randomizeddelaysec: "30m"
+
+# FAIL2BAN
+fail2ban_ignoreself: "true"
+fail2ban_ignoreips:
+  # Self
+  - "127.0.0.1/8 ::1"
+fail2ban_jail_configuration:
+  - section: sshd
+    option: enabled
+    value: "true"
+  - section: sshd
+    option: mode
+    value: "aggressive"
+  - section: sshd
+    option: backend
+    value: "systemd"

@@ -1,0 +1,23 @@
+---
+- name: Ensure dependencies are installed
+  ansible.builtin.apt:
+    name: "{{ cron_dependencies }}"
+    state: present
+    update_cache: true
+
+- name: Install cron jobs
+  ansible.builtin.cron:
+    cron_file: "{{ item.cron_file | d(omit) }}"
+    day: "{{ item.day | d(omit) }}"
+    hour: "{{ item.hour | d(omit) }}"
+    job: "{{ item.job }}"
+    minute: "{{ item.minute | d(omit) }}"
+    month: "{{ item.month | d(omit) }}"
+    name: "{{ item.name }}"
+    special_time: "{{ item.special_time | d(omit) }}"
+    state: "{{ item.state | d('present') }}"
+    user: "{{ item.user | d(omit) }}"
+    weekday: "{{ item.weekday | d(omit) }}"
+  loop: "{{ cron_jobs }}"
+  loop_control:
+    label: "{{ item.name }}"

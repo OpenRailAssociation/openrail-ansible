@@ -1,0 +1,10 @@
+skip_list:
+  - "role_name"
+  - "fqcn"
+  - "var-naming[no-role-prefix]"
+  - "yaml[line-length]"
+exclude_paths:
+  - collections/ansible_collections/
+  - roles/swapfile/
+  - roles/ufw/
+  - roles/users/

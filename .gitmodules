@@ -1,0 +1,12 @@
+[submodule "roles/ufw"]
+	path = roles/ufw
+	url = https://github.com/Oefenweb/ansible-ufw.git
+[submodule "roles/users"]
+	path = roles/users
+	url = https://src.mehl.mx/mxmehl/ansible-role-users.git
+[submodule "collections/ansible_collections/hifis/toolkit"]
+	path = collections/ansible_collections/hifis/toolkit
+	url = https://github.com/hifis-net/ansible-collection-toolkit
+[submodule "roles/swapfile"]
+	path = roles/swapfile
+	url = https://github.com/Oefenweb/ansible-swapfile.git
