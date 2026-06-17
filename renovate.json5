@@ -7,5 +7,12 @@
     managerFilePatterns: [
       '/(^|/)(?:docker-)?compose[^/]*\\.ya?ml.j2$/',
     ],
-  }
+  },
+  packageRules: [
+    {
+      matchDatasources: ['docker'],
+      matchPackageNames: ['ghcr.io/nextcloud-releases/aio-talk'],
+      versioning: 'regex:^(?<major>\\d{8})_(?<minor>\\d{6})$',
+    },
+  ],
 }
