@@ -13,6 +13,7 @@
       matchDatasources: ['docker'],
       matchPackageNames: ['ghcr.io/nextcloud-releases/aio-talk'],
       versioning: 'regex:^(?<major>\\d{8})_(?<minor>\\d{6})$',
+      enabled: false, // Disable updates for this package because it is not used in the project
     },
   ],
 }
