@@ -1,6 +1,7 @@
 ---
+# ---------------------------------------------------------
 # WARN ABOUT POTENTIAL ISSUES
-
+# ---------------------------------------------------------
 - name: Run migration check for qmail files
   ansible.builtin.command:
     cmd: uberspace migration qmail status
@@ -14,8 +15,9 @@
   when: migration_qmail_status.rc != 0
   ignore_errors: true
 
+# ---------------------------------------------------------
 # DOMAINS
-
+# ---------------------------------------------------------
 - name: Get all registered web domains
   ansible.builtin.command:
     cmd: uberspace web domain list
@@ -69,8 +71,40 @@
     - item != uberspace_user + ".uber.space"
   loop: "{{ mail_domain_list }}"
 
-# LOGS
+# ---------------------------------------------------------
+# SSH KEYS
+# ---------------------------------------------------------
+- name: Manage SSH keys and authorized keys
+  tags: ssh
+  block:
+    - name: Ensure SSH keys are present
+      community.crypto.openssh_keypair:
+        path: "/home/{{ uberspace_user }}/.ssh/{{ item.file }}"
+        type: ed25519
+        comment: "{{ item.comment | default(omit) }}"
+        state: "{{ item.state | default('present') }}"
+      loop: "{{ ssh_keys }}"
+      tags: ssh
 
+    - name: Ensure authorized keys are present (from authorized_keys list)
+      ansible.builtin.authorized_key:
+        user: "{{ uberspace_user }}"
+        state: "{{ item.state | default('present') }}"
+        key: "{{ item.key }}"
+      loop: "{{ authorized_keys.from_strings }}"
+      tags: ssh
+
+    - name: Ensure authorized keys are present (from authorized_keys.from_files list)
+      tags: ssh
+      include_tasks:
+        file: ssh_key_to_auth.yml
+        apply:
+          tags: ssh
+      loop: "{{ authorized_keys.from_files }}"
+
+# ---------------------------------------------------------
+# LOGS
+# ---------------------------------------------------------
 - name: Ensure that all logging is enabled
   include_tasks: logs.yml
   loop:
@@ -78,8 +112,9 @@
     - apache_error
     - php_error
 
+# ---------------------------------------------------------
 # MISC
-
+# ---------------------------------------------------------
 - name: Create symbolic link for virtual
   ansible.builtin.file:
     src: "/var/www/virtual/{{ ansible_env.USER }}"

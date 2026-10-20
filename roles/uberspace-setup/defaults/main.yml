@@ -1,3 +1,5 @@
 ---
+ssh_keys: []
+authorized_keys: []
 web_domains: []
 mail_domains: []
