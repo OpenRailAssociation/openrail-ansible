@@ -1,0 +1,13 @@
+---
+- name: Get status of log {{ item }}
+  ansible.builtin.command:
+    cmd: "uberspace web log {{ item }} status"
+  changed_when: false
+  register: log_status
+
+- name: Enable log {{ item }}
+  ansible.builtin.command:
+    cmd: "uberspace web log {{ item }} enable"
+  register: log_enable
+  changed_when: "' is enabled' in log_enable.stdout"
+  when: "' is enabled' not in log_status.stdout"

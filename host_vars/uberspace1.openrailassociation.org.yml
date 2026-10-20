@@ -1,0 +1,20 @@
+uberspace_user: "openrail"
+
+web_domains:
+  - openrailassociation.org
+  - www.openrailassociation.org
+  - openrailfoundation.org
+  - www.openrailfoundation.org
+  - projects.openrailassociation.org
+  - chat.openrailassociation.org
+  - l.openrailassociation.org
+  - web-preview.openrailassociation.org
+  - link.openrailassociation.org
+  - hack4rail.org
+  - www.hack4rail.org
+  - hack4rail.openrailassociation.org
+  - ui.osrd.fr
+
+mail_domains:
+  - openrailassociation.org
+  - openrailfoundation.org

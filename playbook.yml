@@ -1,4 +1,28 @@
 ---
+- name: Set up Uberspace accounts
+  hosts: uberspace
+  remote_user: "{{ uberspace_user }}"
+  environment:
+    PATH: /home/{{ uberspace_user }}/.local/bin:{{ ansible_env.PATH }}
+  # gather_facts: false
+  tasks:
+    - name: Run optional maintenance commands
+      include_role:
+        name: uberspace-maintenance
+      tags:
+        # - borg-stats
+        - ips
+        - maintenance
+        - never
+
+    - name: Setup Uberspace
+      include_role:
+        name: uberspace-setup
+        apply:
+          tags: setup
+      tags:
+        - setup
+
 - name: Set up machines
   hosts: servers
   remote_user: root
