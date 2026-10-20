@@ -1,0 +1,26 @@
+---
+- name: Create web directories
+  file:
+    path: "{{ base }}/{{ item.key }}"
+    state: directory
+    mode: "0775"
+  loop: "{{ web_directories | dict2items }}"
+  when: item.value.link is not defined
+
+- name: Create web directory symlinks
+  file:
+    dest: "{{ base }}/{{ item.key }}"
+    state: link
+    src: "{{ base }}/{{ item.value.link }}"
+  loop: "{{ web_directories | dict2items }}"
+  when: item.value.link is defined
+
+- name: Deploy optional web directory files
+  ansible.builtin.include_tasks:
+    file: deploy-files.yml
+    apply:
+      tags: web_directories
+  vars:
+    webdir: "{{ item.key }}"
+    files: "{{ item.value.files | default([]) }}"
+  loop: "{{ web_directories | dict2items }}"

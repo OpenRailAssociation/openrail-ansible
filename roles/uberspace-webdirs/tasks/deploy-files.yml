@@ -1,0 +1,9 @@
+---
+- name: Deploy web directory files
+  ansible.builtin.copy:
+    src: "{{ file.src }}"
+    dest: "{{ base }}/{{ webdir }}/{{ file.dest }}"
+    mode: "{{ file.mode | default('0664') }}"
+  loop: "{{ files }}"
+  loop_control:
+    loop_var: file

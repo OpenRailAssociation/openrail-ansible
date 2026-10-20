@@ -1,0 +1,2 @@
+---
+base: "/var/www/virtual/{{ ansible_env.USER }}"

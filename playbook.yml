@@ -10,7 +10,6 @@
       include_role:
         name: uberspace-maintenance
       tags:
-        # - borg-stats
         - ips
         - maintenance
         - never
@@ -23,6 +22,14 @@
       tags:
         - setup
         - ssh
+
+    - name: Manage Uberspace web directories
+      include_role:
+        name: uberspace-webdirs
+        apply:
+          tags: webdirs
+      tags:
+        - webdirs
 
 - name: Set up machines
   hosts: servers

@@ -21,6 +21,33 @@ authorized_keys:
     - file: osrd_ed25519
     - file: web_deploy_action_ed25519
 
+web_directories:
+  chat.openrailassociation.org:
+    files:
+      - src: chat/htaccess
+        dest: .htaccess
+  hack4rail.org:
+  hack4rail.openrailassociation.org:
+    link: hack4rail.org
+  www.hack4rail.org:
+    link: hack4rail.org
+  link.openrailassociation.org:
+    files:
+      - src: link/htaccess
+        dest: .htaccess
+      - src: link/index.html
+        dest: index.html
+  l.openrailassociation.org:
+    link: link.openrailassociation.org
+  projects.openrailassociation.org:
+  ui.osrd.fr:
+  web-deployment-action.openrailassociation.org:
+  web-preview.openrailassociation.org:
+    files:
+      - src: robots-disallow-all.txt
+        dest: robots.txt
+
+
 web_domains:
   - openrailassociation.org
   - www.openrailassociation.org
