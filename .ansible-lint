@@ -5,6 +5,8 @@ skip_list:
   - "yaml[line-length]"
 exclude_paths:
   - collections/ansible_collections/
+  - roles/certbot/
+  - roles/fail2ban/
   - roles/nginx/
   - roles/swapfile/
   - roles/ufw/
