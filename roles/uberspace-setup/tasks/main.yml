@@ -1,0 +1,122 @@
+---
+# ---------------------------------------------------------
+# WARN ABOUT POTENTIAL ISSUES
+# ---------------------------------------------------------
+- name: Run migration check for qmail files
+  ansible.builtin.command:
+    cmd: uberspace migration qmail status
+  changed_when: false
+  failed_when: false
+  register: migration_qmail_status
+
+- name: Warn about qmail migration issues # noqa ignore-errors
+  ansible.builtin.fail:
+    msg: "WARNING: qmail migration check issues a warning. Find out issues with 'uberspace migration qmail check'"
+  when: migration_qmail_status.rc != 0
+  ignore_errors: true
+
+# ---------------------------------------------------------
+# DOMAINS
+# ---------------------------------------------------------
+- name: Get all registered web domains
+  ansible.builtin.command:
+    cmd: uberspace web domain list
+  changed_when: false
+  register: web_domain_list_raw
+
+- name: Get all registered mail domains
+  ansible.builtin.command:
+    cmd: uberspace mail domain list
+  changed_when: false
+  register: mail_domain_list_raw
+
+- name: Remove DNS warnings from domain lists
+  ansible.builtin.set_fact:
+    web_domain_list: "{{ web_domain_list_raw.stdout_lines | map('split', ' ') | map('first') | list }}"
+    mail_domain_list: "{{ mail_domain_list_raw.stdout_lines | map('split', ' ') | map('first') | list }}"
+
+- name: Add web domain to Uberspace if not yet registered
+  ansible.builtin.command:
+    cmd: "uberspace web domain add {{ item }}"
+  register: web_domain_add
+  changed_when: "' configuration has been adapted' in web_domain_add.stdout"
+  when: item not in web_domain_list
+  loop: "{{ web_domains }}"
+
+- name: Add mail domain to Uberspace if not yet registered
+  ansible.builtin.command:
+    cmd: "uberspace mail domain add {{ item }}"
+  register: mail_domain_add
+  changed_when: "' configuration has been adapted' in mail_domain_add.stdout"
+  when: item not in mail_domain_list
+  loop: "{{ mail_domains }}"
+
+- name: Delete web domain from Uberspace if not configured locally
+  ansible.builtin.command:
+    cmd: "uberspace web domain del {{ item }}"
+  register: web_domain_del
+  changed_when: "' configuration has been adapted' in web_domain_del.stdout"
+  when:
+    - item not in web_domains
+    - item != uberspace_user + ".uber.space"
+  loop: "{{ web_domain_list }}"
+
+- name: Delete mail domain from Uberspace if not configured locally
+  ansible.builtin.command:
+    cmd: "uberspace mail domain del {{ item }}"
+  register: mail_domain_del
+  changed_when: "' configuration is now adapted' in mail_domain_del.stdout"
+  when:
+    - item not in mail_domains
+    - item != uberspace_user + ".uber.space"
+  loop: "{{ mail_domain_list }}"
+
+# ---------------------------------------------------------
+# SSH KEYS
+# ---------------------------------------------------------
+- name: Manage SSH keys and authorized keys
+  tags: ssh
+  block:
+    - name: Ensure SSH keys are present
+      community.crypto.openssh_keypair:
+        path: "/home/{{ uberspace_user }}/.ssh/{{ item.file }}"
+        type: ed25519
+        comment: "{{ item.comment | default(omit) }}"
+        state: "{{ item.state | default('present') }}"
+      loop: "{{ ssh_keys }}"
+      tags: ssh
+
+    - name: Ensure authorized keys are present (from authorized_keys list)
+      ansible.builtin.authorized_key:
+        user: "{{ uberspace_user }}"
+        state: "{{ item.state | default('present') }}"
+        key: "{{ item.key }}"
+      loop: "{{ authorized_keys.from_strings }}"
+      tags: ssh
+
+    - name: Ensure authorized keys are present (from authorized_keys.from_files list)
+      tags: ssh
+      include_tasks:
+        file: ssh_key_to_auth.yml
+        apply:
+          tags: ssh
+      loop: "{{ authorized_keys.from_files }}"
+
+# ---------------------------------------------------------
+# LOGS
+# ---------------------------------------------------------
+- name: Ensure that all logging is enabled
+  include_tasks: logs.yml
+  loop:
+    - access
+    - apache_error
+    - php_error
+
+# ---------------------------------------------------------
+# MISC
+# ---------------------------------------------------------
+- name: Create symbolic link for virtual
+  ansible.builtin.file:
+    src: "/var/www/virtual/{{ ansible_env.USER }}"
+    dest: "{{ ansible_env.HOME }}/virtual"
+    state: link

@@ -1,0 +1,13 @@
+RewriteEngine On
+RewriteBase /
+
+# --------------
+# REDIRECTS
+# --------------
+
+# Incubation Stages
+RewriteRule ^stage-1/?$ 	https://projects.openrailassociation.org/docs/incubation/stages/onboarded/ [R=301,L]
+RewriteRule ^stage-2/?$ 	https://projects.openrailassociation.org/docs/incubation/stages/qualified/ [R=301,L]
+RewriteRule ^stage-3/?$ 	https://projects.openrailassociation.org/docs/incubation/stages/adopted/ [R=301,L]
+RewriteRule ^stage-4/?$ 	https://projects.openrailassociation.org/docs/incubation/stages/retired/ [R=301,L]
+RewriteRule ^admin-projects/?$ 	https://projects.openrailassociation.org/docs/joining/projects/#administrative-projects [R=301,NE,L]

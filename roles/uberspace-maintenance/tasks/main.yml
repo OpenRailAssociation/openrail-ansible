@@ -1,0 +1,24 @@
+---
+- name: Get public IP addresses
+  tags: ips
+  block:
+    - name: Get public IPv4 address
+      ansible.builtin.uri:
+        url: https://ip4.snapdns.eu
+        return_content: true
+      register: ipv4
+
+    - name: Get public IPv6 address
+      ansible.builtin.uri:
+        url: https://ip6.snapdns.eu
+        return_content: true
+      register: ipv6
+      ignore_errors: true
+
+    - name: Display the internal and public IPs
+      debug:
+        msg:
+          - "Internal IPv4: {{ ansible_default_ipv4.address }}"
+          - "Public IPv4: {{ ipv4.content }}"
+          - "Internal IPv6: {{ ansible_default_ipv6.address | default('') }}"
+          - "Public IPv6: {{ ipv6.content }}"

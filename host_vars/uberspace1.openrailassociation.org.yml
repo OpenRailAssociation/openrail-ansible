@@ -1,0 +1,68 @@
+uberspace_user: "openrail"
+ssh_keys:
+  - file: githubworkflow_ed25519
+    comment: "github-workflow@uberspace1"
+  - file: hack4rail_ed25519
+    comment: "hack4rail-deploy@uberspace1"
+  - file: nge_ed25519
+    comment: "nge-deploy@uberspace1"
+  - file: osrd_ed25519
+    comment: "osrd-deploy@uberspace1"
+  - file: web_deploy_action_ed25519
+    comment: "web-deploy-action@uberspace1"
+
+authorized_keys:
+  from_strings:
+    - key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG6temr5ayLJLhqcee+bqB7pJHswwUVb4kSzV7DzSMFR max.mehl@DB/OpenRail"
+  from_files:
+    - file: githubworkflow_ed25519
+    - file: hack4rail_ed25519
+    - file: nge_ed25519
+    - file: osrd_ed25519
+    - file: web_deploy_action_ed25519
+
+web_directories:
+  chat.openrailassociation.org:
+    files:
+      - src: chat/htaccess
+        dest: .htaccess
+  hack4rail.org:
+  hack4rail.openrailassociation.org:
+    link: hack4rail.org
+  www.hack4rail.org:
+    link: hack4rail.org
+  link.openrailassociation.org:
+    files:
+      - src: link/htaccess
+        dest: .htaccess
+      - src: link/index.html
+        dest: index.html
+  l.openrailassociation.org:
+    link: link.openrailassociation.org
+  projects.openrailassociation.org:
+  ui.osrd.fr:
+  web-deployment-action.openrailassociation.org:
+  web-preview.openrailassociation.org:
+    files:
+      - src: robots-disallow-all.txt
+        dest: robots.txt
+
+
+web_domains:
+  - openrailassociation.org
+  - www.openrailassociation.org
+  - openrailfoundation.org
+  - www.openrailfoundation.org
+  - projects.openrailassociation.org
+  - chat.openrailassociation.org
+  - l.openrailassociation.org
+  - web-preview.openrailassociation.org
+  - link.openrailassociation.org
+  - hack4rail.org
+  - www.hack4rail.org
+  - hack4rail.openrailassociation.org
+  - ui.osrd.fr
+
+mail_domains:
+  - openrailassociation.org
+  - openrailfoundation.org
