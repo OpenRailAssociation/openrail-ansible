@@ -1,0 +1,39 @@
+---
+- name: Ensure GitHub token is set
+  ansible.builtin.assert:
+    that: web_preview_github_token | length > 0
+    fail_msg: "web_preview_github_token must be set (vault-encrypted) in host_vars"
+    quiet: true
+
+- name: Ensure bin and logs directories exist
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - bin
+    - logs
+
+- name: Deploy web preview cleanup script
+  ansible.builtin.copy:
+    src: cleanup-web-previews.py
+    dest: "{{ ansible_env.HOME }}/bin/cleanup-web-previews.py"
+    mode: "0755"
+
+# Stored in the user's crontab, which is only readable by the user
+- name: Provide GITHUB_TOKEN to cron jobs
+  ansible.builtin.cron:
+    name: GITHUB_TOKEN
+    env: true
+    job: "{{ web_preview_github_token }}"
+  no_log: true
+
+# The log is overwritten on each run so that cron does not mail output and nothing piles up
+- name: Install nightly web preview cleanup cron job
+  ansible.builtin.cron:
+    name: Clean up web previews of closed PRs
+    hour: "{{ web_preview_cron_hour }}"
+    minute: "{{ web_preview_cron_minute }}"
+    job: >-
+      {{ web_preview_python }} {{ ansible_env.HOME }}/bin/cleanup-web-previews.py
+      > {{ ansible_env.HOME }}/logs/cleanup-web-previews.log 2>&1

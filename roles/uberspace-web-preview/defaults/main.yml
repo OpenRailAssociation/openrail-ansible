@@ -1,0 +1,9 @@
+---
+# GitHub token to query PR states without hitting the anonymous rate limit.
+# Required, store it vault-encrypted in host_vars. Read-only access to public repos is enough.
+web_preview_github_token: ""
+# Interpreter for the cleanup script
+web_preview_python: /usr/bin/python3.14
+# Nightly run time
+web_preview_cron_hour: "3"
+web_preview_cron_minute: "30"

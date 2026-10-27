@@ -1,1 +1,1 @@
-uberspace1.openrailassociation.org = ["uberspace"]
+uberspace1.openrailassociation.org = ["uberspace", "uberspace_webdirs", "uberspace_web_preview"]

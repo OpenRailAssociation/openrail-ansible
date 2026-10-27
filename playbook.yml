@@ -30,6 +30,16 @@
           tags: webdirs
       tags:
         - webdirs
+      when: inventory_hostname in groups["uberspace_webdirs"]
+
+    - name: Clean up web previews of closed PRs
+      include_role:
+        name: uberspace-web-preview
+        apply:
+          tags: web-preview
+      tags:
+        - web-preview
+      when: inventory_hostname in groups["uberspace_web_preview"]
 
 - name: Set up machines
   hosts: servers
