@@ -32,7 +32,7 @@ REPOS = {
     "h4r": "OpenRailAssociation/hack4rail-website",
     "osrdui": "OpenRailAssociation/osrd",
     "webdeploy": "OpenRailAssociation/web-deployment-action",
-    "nge": "SchweizerischeBundesbahnen/netzgrafik-editor-frontend",
+    "nge": "OpenRailAssociation/netzgrafik-editor-frontend",
 }
 
 # Must match what web-deployment-action writes
