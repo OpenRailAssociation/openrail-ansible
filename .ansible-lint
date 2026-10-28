@@ -1,10 +1,11 @@
 skip_list:
-  - "role_name"
+  - "role-name"
   - "fqcn"
   - "var-naming[no-role-prefix]"
   - "yaml[line-length]"
 exclude_paths:
   - collections/ansible_collections/
+  - host_vars/*.sops.yml
   - roles/certbot/
   - roles/fail2ban/
   - roles/nginx/
