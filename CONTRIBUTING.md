@@ -10,6 +10,15 @@ Thank you for your interest in this project. Contributions are welcome. Feel fre
 
 We are committed to fostering a welcoming, respectful, and harassment-free environment. Be kind!
 
+## Secrets
+
+Secrets live in `host_vars/` and `group_vars/` in files named `*.sops.yml`, encrypted with [SOPS](https://getsops.io) and [age](https://age-encryption.org). Each file can only be read by the age public keys listed for it in [`.sops.yaml`](.sops.yaml).
+
+- Create your key with `age-keygen` and keep the private key in your SOPS `keys.txt` (or point `SOPS_AGE_KEY_FILE` to it). Send the public key (`age1…`) to a maintainer.
+- Edit or create a secrets file with `sops host_vars/<host>.sops.yml`. Only secrets belong in these files, everything else goes into the plain vars files.
+- After changing recipients in `.sops.yaml`, run `sops updatekeys <file>`. Rotate secrets of people who left, as they may have seen them.
+- Requires `sops`, `age` and the `community.sops` Ansible collection.
+
 ## Contribution workflow
 
 1. Fork the repository.

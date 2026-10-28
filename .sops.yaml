@@ -1,0 +1,7 @@
+# Files named *.sops.yml contain only secrets; all their values are encrypted.
+# Add one rule per scope (group/host) with the age public keys of everyone who may read it.
+# After changing recipients: sops updatekeys <file>
+creation_rules:
+  - path_regex: (host|group)_vars/.*\.sops\.ya?ml$
+    age: >-
+      age1ctnta45dt56nwqhv0787jzv2c69zuzkfry4a5pcsx8t8trahju3q8av6q9

@@ -87,7 +87,7 @@
       tags: ssh
 
     - name: Ensure authorized keys are present (from authorized_keys list)
-      ansible.builtin.authorized_key:
+      ansible.posix.authorized_key:
         user: "{{ uberspace_user }}"
         state: "{{ item.state | default('present') }}"
         key: "{{ item.key }}"
